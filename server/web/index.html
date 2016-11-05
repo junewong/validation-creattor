@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>校验代码生成器</title>
+	<link rel="stylesheet" href="/web/lib/bootstrap/css/bootstrap.css" type="text/css" media="screen" charset="utf-8" />
+	<script type="text/javascript" charset="utf-8" src="/web/lib/js/jquery-1.12.2.min.js"></script>
+	<script type="text/javascript" charset="utf-8" src="/web/lib/bootstrap/js/bootstrap.min.js"></script>
+	<script type="text/javascript" charset="utf-8" src="/web/lib/js/jsrender.min.js"></script>
+	<script type="text/javascript" charset="utf-8" src="/web/js/index.js"></script>
+	<style type="text/css" media="screen">
+		textarea {
+			width: 100%;
+			height: 280px;
+			margin-left:0px;
+		}
+		.wrapper {
+			margin-left: 150px;
+		}
+		.params {
+			padding-left:18px;
+		}
+		.convert-button {
+			padding-top:10px;
+		}
+		.validation-option {
+			padding-top:4px;
+			padding-bottom:6px;
+			margin-bottom:4px;
+			background-color: rgb(245,245,245);
+		}
+		.validation-item {
+			margin-right:16px;
+		}
+	</style>
+</head>
+<body>
+	<div class="row">
+		<div class="col-sm-12">
+			<ol class="breadcrumb">
+				<h3 class="text-center">校验代码生成器（Beta） </h3>
+			</ol>
+		</div>
+	</div>
+	<div class="wrapper">
+		<!-- 代码区 -->
+		<div class="row">
+			<div class="col-xs-5">
+				<textarea class="bg-success" id="sourceCode">{{data-content}}</textarea>
+			</div>
+			<div class="col-xs-5">
+				<textarea class="bg-warning" id="validationCode"></textarea>
+			</div>
+		</div>
+		<!--// 代码区 -->
+		<!-- 方法选择区 -->
+		<div class="row">
+			<div class="col-xs-10">
+				<div class="breadcrumb">
+					<div class="row">
+						<div class="col-xs-9">
+							<label for="">选择需要校验的方法： </label>
+							<div class="row params" id="paramsOption">
+							</div>
+						</div>
+						<div class="col-xs-1 pull-right convert-button">
+							<button id="createCodeButton" class="btn btn-primary">生成代码</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!--// 方法选择区 -->
+		<div class="row">
+			<div class="col-xs-10" id="validationOptions">
+			</div>
+		</div>
+
+		<!-- 页脚 -->
+		<div class="row">
+			<div class="col-xs-10" id="footer">&nbsp;</div>
+		</div>
+		<!--// 页脚 -->
+	</div>
+
+
+	<script id="paramsOptionTmpl" type="text/x-js-template" charset="utf-8">
+	   <div class="form-group">
+			{{for paramInfos}}
+			<label class="control-label checkbox-inline">
+				<input type="checkbox" name="params" value="{{:name}}" checked>{{:name}}
+			</label>
+		   {{/for}}
+	   </div>
+	</script>
+
+	<script id="conditionsTmpl" type="text/x-js-template" charset="utf-8">
+		<form class="form-horizontal" onsubmit="return false;">
+			{{for paramInfos}}
+			<div class="form-group validation-option" id="option-{{:name}}" name="{{:name}}">
+				<label class="col-sm-1 control-label">{{:name}}</label>
+				<div class="col-xs-9 validation-item-group">
+					{{if isObj }}
+					<label name="canBeNull" class="control-label checkbox-inline validation-item">
+						<input type="checkbox" name="enable" value="1" checked>可否为Null
+						<input type="input" name="message" value="参数{{:name}}不能为null" placeholder="错误提示" style="display:none;"/>
+					</label>
+					{{/if}}
+					{{if isNumber }}
+					<label name="minNumber" class="control-label checkbox-inline validation-item">
+						<input type="checkbox" name="enable" value="1" checked>
+						大于等于：<input type="input" name="value" value="1"/>
+						<input type="input" name="message" value="参数{{:name}}超出允许范围" placeholder="错误提示" style="display:none;"/>
+						<span class="messageButton"><i class="glyphicon glyphicon-alert"></i></span>
+					</label>
+					<label name="maxNumber" class="control-label checkbox-inline validation-item">
+						<input type="checkbox" name="enable" value="1">
+						小于等于：<input type="input" name="value" value=""/>
+						<input type="input" name="message" value="参数{{:name}}超出允许范围" placeholder="错误提示" style="display:none;"/>
+					</label>
+					{{/if}}
+					{{if isString }}
+					<label name="canBeEmpty" class="control-label checkbox-inline validation-item">
+						<input type="checkbox" name="enable" value="1" checked>可否为空
+						<input type="input" name="message" value="参数{{:name}}不允许为空" placeholder="错误提示" style="display:none;"/>
+					</label>
+					{{/if}}
+					<label name="regex" class="control-label checkbox-inline validation-item">
+						<input type="checkbox" name="enable" value="1">
+						正则校验：<input type="input" name="value" value="" disabled="disabled" placeholder="填写正则表达式"/>
+						<input type="input" name="message" value="参数{{:name}}校验失败" placeholder="错误提示" style="display:none;"/>
+					</label>
+				</div>
+			</div>
+			{{/for}}
+		</form>
+	</script>
+
+<script id="validationCodeTmpl" type="text/x-js-template" charset="utf-8">
+package  {{:classInfo.packageName}}
+
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+/**
+ * {{:classInfo.comment}}
+ *
+ * @author {{:classInfo.author}}
+ * @date {{:classInfo.date}}
+ */
+public class {{:classInfo.className}}Validation {
+
+	public static ValidationResult validate( {{:classInfo.className}} param ) {
+		ValidationResult result = null;
+
+		{{for paramInfos}}
+		result = validate{{:upperName}}( param.get{{:upperName}} );
+		if ( ! result.isSuccess() ) {
+			return result;
+		}
+		{{/for}}
+
+		return new ValidationResult( true );
+	}
+
+	{{for paramInfos}}
+	public static ValidationResult validate{{:upperName}}( {{:javaType}} value ) {
+
+	{{if conds.canBeNull }}
+		if ( null == value ) {
+			return new ValidationResult( true );
+		}
+	{{/if}}
+
+	{{if conds.isRegex }}
+		try {
+			Pattern p = Pattern.compile( "{{:conds.regex.value}}" );
+			Matcher matcher = p.matcher( str );
+			if ( ! matcher.matches() ) {
+				return new ValidationResult( false, "{{:conds.regex.message}}" );
+			}
+		} catch ( Exception e ) {
+			String errorMessage = String.format( "[{{:classInfo.className}}] 校验参数{{:name}}时出现异常，value：%s，异常信息：%s", value, e.getMessage() );
+			return new ValidationResult( false, errorMessage );
+		}
+
+	{{else isNumber }}
+	{{if conds.maxNumber.enable }}
+		if ( ! value >= {{:conds.maxNumber.value}} ) {
+			return new ValidationResult( false, "{{:conds.maxNumber.message}}" );
+		}
+	{{/if}}
+
+	{{if conds.minNumber.enable }}
+		if ( ! value <= {{:conds.minNumber.value}} ) {
+			return new ValidationResult( false, "{{:conds.minNumber.message}}" );
+		}
+	{{/if}}
+
+	{{else isString }}
+
+	{{if conds.canBeEmpty.enable }}
+		if ( "".equals( value ) ) {
+			return new ValidationResult( false, "{{:conds.canBeEmpty.message}}" );
+		}
+	{{/if}}
+
+	{{/if}}
+		return new ValidationResult( true );
+	}
+
+	{{/for}}
+
+}
+
+</script>
+
+</body>
+</html>
