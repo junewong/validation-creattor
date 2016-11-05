@@ -21,7 +21,8 @@ INDEX_FILE = WEB_PATH + "/index.html"
 DATA_FILE = CURRENT_PATH + '/../tmp/data.txt'
 KEY_DATA_CONTENT = '{{data-content}}'
 
-HOST = "localhost"
+#HOST = "localhost"
+HOST = ""
 PORT = 7755
 
 

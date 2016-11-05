@@ -102,6 +102,11 @@ $(function () {
 	function updateMethodaArea( paramInfos ) {
 		var html = paramInfos ?  $.templates( '#paramsOptionTmpl' ).render( {paramInfos: paramInfos} ) : '';
 		$('#paramsOption').html( html );
+		$('#paramsOption').find(':checkbox').on( 'click', function() {
+			var name = $(this).val();
+			$('#option-' + name ).fadeToggle( !! $(this).prop( 'checked' ) );
+		});
+ 
 	}
 
     // 创建校验条件的选项
@@ -109,6 +114,7 @@ $(function () {
 		var html = paramInfos ?  $.templates( '#conditionsTmpl' ).render( {paramInfos: paramInfos} ) : '';
 		$('#validationOptions').html( html );
     }
+
 
     // 初始化
 	function init() {
