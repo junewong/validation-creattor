@@ -32,14 +32,17 @@
 		.validation-item {
 			margin-right:16px;
 		}
+		.message-folder {
+			color: LightSkyBlue;
+		}
 	</style>
 </head>
 <body>
 	<div class="row">
 		<div class="col-sm-12">
-			<ol class="breadcrumb">
+			<div class="breadcrumb">
 				<h3 class="text-center">校验代码生成器（Beta） </h3>
-			</ol>
+			</div>
 		</div>
 	</div>
 	<div class="wrapper">
@@ -87,6 +90,9 @@
 
 	<script id="paramsOptionTmpl" type="text/x-js-template" charset="utf-8">
 	   <div class="form-group">
+			<label class="control-label checkbox-inline">
+				<input id="reverseParamsButton" class="btn btn-xs btn-default" type="button" name="params" value="反选" >
+			</label>
 			{{for paramInfos}}
 			<label class="control-label checkbox-inline">
 				<input type="checkbox" name="params" value="{{:name}}" checked>{{:name}}
@@ -105,6 +111,7 @@
 					<label name="canBeNull" class="control-label checkbox-inline validation-item">
 						<input type="checkbox" name="enable" value="1" checked>可否为Null
 						<input type="input" name="message" value="参数{{:name}}不能为null" placeholder="错误提示" style="display:none;"/>
+						<a class="message-folder" href="javascript:void();">[?]</a>
 					</label>
 					{{/if}}
 					{{if isNumber }}
@@ -112,24 +119,27 @@
 						<input type="checkbox" name="enable" value="1" checked>
 						大于等于：<input type="input" name="value" value="1"/>
 						<input type="input" name="message" value="参数{{:name}}超出允许范围" placeholder="错误提示" style="display:none;"/>
-						<span class="messageButton"><i class="glyphicon glyphicon-alert"></i></span>
+						<a class="message-folder" href="javascript:void();">[?]</a>
 					</label>
 					<label name="maxNumber" class="control-label checkbox-inline validation-item">
 						<input type="checkbox" name="enable" value="1">
 						小于等于：<input type="input" name="value" value=""/>
 						<input type="input" name="message" value="参数{{:name}}超出允许范围" placeholder="错误提示" style="display:none;"/>
+						<a class="message-folder" href="javascript:void();">[?]</a>
 					</label>
 					{{/if}}
 					{{if isString }}
 					<label name="canBeEmpty" class="control-label checkbox-inline validation-item">
 						<input type="checkbox" name="enable" value="1" checked>可否为空
 						<input type="input" name="message" value="参数{{:name}}不允许为空" placeholder="错误提示" style="display:none;"/>
+						<a class="message-folder" href="javascript:void();">[?]</a>
 					</label>
 					{{/if}}
 					<label name="regex" class="control-label checkbox-inline validation-item">
 						<input type="checkbox" name="enable" value="1">
 						正则校验：<input type="input" name="value" value="" disabled="disabled" placeholder="填写正则表达式"/>
 						<input type="input" name="message" value="参数{{:name}}校验失败" placeholder="错误提示" style="display:none;"/>
+						<a class="message-folder" href="javascript:void();">[?]</a>
 					</label>
 				</div>
 			</div>
@@ -138,10 +148,14 @@
 	</script>
 
 <script id="validationCodeTmpl" type="text/x-js-template" charset="utf-8">
-package  {{:classInfo.packageName}}
+package  {{:classInfo.packageName}};
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+{{if classInfo.className}}
+import {{:classInfo.packageName}}.{{:classInfo.className}};
+{{/if}}
 
 /**
  * {{:classInfo.comment}}
@@ -173,7 +187,15 @@ public class {{:classInfo.className}}Validation {
 		}
 	{{/if}}
 
-	{{if conds.isRegex }}
+	{{if isString }}
+
+	{{if conds.canBeEmpty.enable }}
+		if ( "".equals( value ) ) {
+			return new ValidationResult( false, "{{:conds.canBeEmpty.message}}" );
+		}
+	{{/if}}
+
+	{{else conds.isRegex }}
 		try {
 			Pattern p = Pattern.compile( "{{:conds.regex.value}}" );
 			Matcher matcher = p.matcher( str );
@@ -185,24 +207,16 @@ public class {{:classInfo.className}}Validation {
 			return new ValidationResult( false, errorMessage );
 		}
 
-	{{else isNumber }}
-	{{if conds.maxNumber.enable }}
-		if ( ! value >= {{:conds.maxNumber.value}} ) {
-			return new ValidationResult( false, "{{:conds.maxNumber.message}}" );
-		}
-	{{/if}}
-
 	{{if conds.minNumber.enable }}
 		if ( ! value <= {{:conds.minNumber.value}} ) {
 			return new ValidationResult( false, "{{:conds.minNumber.message}}" );
 		}
 	{{/if}}
 
-	{{else isString }}
-
-	{{if conds.canBeEmpty.enable }}
-		if ( "".equals( value ) ) {
-			return new ValidationResult( false, "{{:conds.canBeEmpty.message}}" );
+	{{else isNumber }}
+	{{if conds.maxNumber.enable }}
+		if ( ! value >= {{:conds.maxNumber.value}} ) {
+			return new ValidationResult( false, "{{:conds.maxNumber.message}}" );
 		}
 	{{/if}}
 

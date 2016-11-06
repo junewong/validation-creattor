@@ -7,6 +7,7 @@ import glob
 import fnmatch
 
 from conf.config import conf
+from server.server import Server
 
 CURRENT_PATH = os.path.dirname( os.path.realpath(__file__) )
 DATA_FILE = CURRENT_PATH + '/tmp/data.txt'
@@ -68,6 +69,8 @@ def main(argv):
             print "保存临时文件成功"
         else:
             print "保存临时文件失败！"
+    else:
+        Server.run()
 
 
 if __name__ == "__main__":

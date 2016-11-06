@@ -21,9 +21,10 @@ INDEX_FILE = WEB_PATH + "/index.html"
 DATA_FILE = CURRENT_PATH + '/../tmp/data.txt'
 KEY_DATA_CONTENT = '{{data-content}}'
 
-#HOST = "localhost"
-HOST = ""
+#HOST = ""
+HOST = "localhost"
 PORT = 7755
+url = ""
 
 
 def read_file( filename ):

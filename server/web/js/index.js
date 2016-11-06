@@ -73,7 +73,7 @@ $(function () {
 
 				items[ key ] = item;
 
-                if ( enable && key == 'regex' ) {
+                if ( enable && key === 'regex' ) {
                     isRegex = true;
                 }
 
@@ -89,9 +89,17 @@ $(function () {
 
     // 读取类信息
 	function readClassInfo() {
+		var code = $('#sourceCode').val();
+		if ( ! code ) {
+			return {};
+		}
+
+		var className = code.match( /(?:public|protected) +class +(\w+)/ )[1];
+		var packageName = code.match( /package +([\.\w]+)/ )[1];
+
         return { 
-            className : '', 
-            packageName : '', 
+            className : className, 
+            packageName : packageName, 
             author : '',
             date : '',
             paramClassPackage: ''
@@ -106,6 +114,12 @@ $(function () {
 			var name = $(this).val();
 			$('#option-' + name ).fadeToggle( !! $(this).prop( 'checked' ) );
 		});
+
+		$('#reverseParamsButton').on( 'click', function() {
+			$('#paramsOption').find( ":checkbox" ).each( function() {
+				$(this).click();
+			});
+		});
  
 	}
 
@@ -113,11 +127,22 @@ $(function () {
     function createValidationOptions( paramInfos ) {
 		var html = paramInfos ?  $.templates( '#conditionsTmpl' ).render( {paramInfos: paramInfos} ) : '';
 		$('#validationOptions').html( html );
+
+		$('#validationOptions').find( 'input[name=enable]').on( 'change', function() {
+			$(this).parent().find( 'input[name=value]' ).prop( 'disabled', this.checked ? '' : 'disabled' );
+		});
+		$('.message-folder').on( 'click', function() {
+			$(this).parent().find( 'input[name=message]' ).fadeToggle();
+		});
     }
 
+	function initEvents(){
+	}
 
     // 初始化
 	function init() {
+		initEvents();
+
 		var code = $('#sourceCode').val();
 		var paramInfos = readMethosFromClass( code );
 		updateMethodaArea( paramInfos );
@@ -127,11 +152,16 @@ $(function () {
             var classInfo = readClassInfo();
             var conditions = readValidationCondtions();
 
+			var visibleParamInfos = [];
             $( paramInfos ).map( function( i, param ) {
-                param.conds = conditions[ param.name ];
+				var cond = conditions[ param.name ];
+				if ( cond ) {
+					param.conds = cond;
+					visibleParamInfos.push( param );
+				}
             });
 
-            var data = { classInfo : classInfo, paramInfos : paramInfos };
+            var data = { classInfo : classInfo, paramInfos : visibleParamInfos };
 
             var html = $.templates( '#validationCodeTmpl' ).render( data ).replace( /^\s*\n/gm, '\n' );
             $('#validationCode').val( html );

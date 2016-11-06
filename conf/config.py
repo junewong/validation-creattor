@@ -4,6 +4,9 @@
 # 配置
 conf = {
     'root' : '../',
-    'app' : 'app/'
+    'app' : 'app/',
+    'package' : 'cn.jy.common.validation',
+    'author' : 'junewong<wangzhu@ucweb.com>',
+    'package' : 'app/'
 
 }
