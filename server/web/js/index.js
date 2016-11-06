@@ -64,7 +64,7 @@ $(function () {
 			$param.find( '.validation-item').each(function() {
 				var $item = $(this);
 				var key = $item.attr( 'name' );
-                var enable = !! $item.find( 'input[name=enable]' ).attr( 'checked' );
+                var enable = !! $item.find( 'input[name=enable]' ).prop( 'checked' );
 				var item = {
                     enable  : enable,
 					value   : $item.find( 'input[name=value]' ).val(),
@@ -94,14 +94,18 @@ $(function () {
 			return {};
 		}
 
-		var className = code.match( /(?:public|protected) +class +(\w+)/ )[1];
-		var packageName = code.match( /package +([\.\w]+)/ )[1];
+		var className = code.match( /(?:public|protected) +class +(\w+)/ )[1] || '';
+		var packageName = code.match( /package +([\.\w]+)/ )[1] || '';
+
+		var date = new Date();
+		var today = date.getFullYear() + '-' + date.getMonth() + '-' + date.getDate();
 
         return { 
             className : className, 
             packageName : packageName, 
             author : '',
-            date : '',
+            date : today,
+            comment : '针对' + className + '的校验类。',
             paramClassPackage: ''
         };
     }

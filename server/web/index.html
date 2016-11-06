@@ -35,6 +35,9 @@
 		.message-folder {
 			color: LightSkyBlue;
 		}
+		.submit-button-group {
+			margin-right:20px;
+		}
 	</style>
 </head>
 <body>
@@ -66,7 +69,7 @@
 							<div class="row params" id="paramsOption">
 							</div>
 						</div>
-						<div class="col-xs-1 pull-right convert-button">
+						<div class="col-xs-1 pull-right convert-button btn-group submit-button-group">
 							<button id="createCodeButton" class="btn btn-primary">生成代码</button>
 						</div>
 					</div>
@@ -188,14 +191,26 @@ public class {{:classInfo.className}}Validation {
 	{{/if}}
 
 	{{if isString }}
-
-	{{if conds.canBeEmpty.enable }}
+		{{if conds.canBeEmpty.enable }}
 		if ( "".equals( value ) ) {
 			return new ValidationResult( false, "{{:conds.canBeEmpty.message}}" );
 		}
+		{{/if}}
+	{{else isNumber }}
+		{{if conds.maxNumber.enable }}
+		if ( ! value >= {{:conds.maxNumber.value}} ) {
+			return new ValidationResult( false, "{{:conds.maxNumber.message}}" );
+		}
+		{{/if}}
+
+		{{if conds.minNumber.enable }}
+		if ( ! value <= {{:conds.minNumber.value}} ) {
+			return new ValidationResult( false, "{{:conds.minNumber.message}}" );
+		}
+		{{/if}}
 	{{/if}}
 
-	{{else conds.isRegex }}
+	{{if conds.regex.enable }}
 		try {
 			Pattern p = Pattern.compile( "{{:conds.regex.value}}" );
 			Matcher matcher = p.matcher( str );
@@ -203,24 +218,12 @@ public class {{:classInfo.className}}Validation {
 				return new ValidationResult( false, "{{:conds.regex.message}}" );
 			}
 		} catch ( Exception e ) {
-			String errorMessage = String.format( "[{{:classInfo.className}}] 校验参数{{:name}}时出现异常，value：%s，异常信息：%s", value, e.getMessage() );
+			{{{!-- String errorMessage = String.format( "[{{classInfo.className}}] 校验参数{{:name}}时出现异常，value：%s，异常信息：%s", value, e.getMessage() ); --}}
+			String errorMessage = String.format( "校验参数{{:name}}时出现异常，value：%s，异常信息：%s", value, e.getMessage() );
 			return new ValidationResult( false, errorMessage );
 		}
-
-	{{if conds.minNumber.enable }}
-		if ( ! value <= {{:conds.minNumber.value}} ) {
-			return new ValidationResult( false, "{{:conds.minNumber.message}}" );
-		}
 	{{/if}}
 
-	{{else isNumber }}
-	{{if conds.maxNumber.enable }}
-		if ( ! value >= {{:conds.maxNumber.value}} ) {
-			return new ValidationResult( false, "{{:conds.maxNumber.message}}" );
-		}
-	{{/if}}
-
-	{{/if}}
 		return new ValidationResult( true );
 	}
 
