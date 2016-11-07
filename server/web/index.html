@@ -44,7 +44,7 @@
 	<div class="row">
 		<div class="col-sm-12">
 			<div class="breadcrumb">
-				<h3 class="text-center">校验代码生成器（Alpah） </h3>
+				<h3 class="text-center">校验代码生成器（Alpha） </h3>
 			</div>
 		</div>
 	</div>
@@ -186,7 +186,7 @@ public class {{:classInfo.className}}Validation {
 	}
 
 	{{for paramInfos}}
-	public static ValidationResult validate{{:upperName}}( {{:javaType}} value ) {
+	private static ValidationResult validate{{:upperName}}( {{:javaType}} value ) {
 
 	{{if conds.canBeNull }}
 	{{if conds.canBeNull.enable }}
