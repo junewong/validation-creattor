@@ -1,6 +1,19 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+# --------------------------------------------------------------------------------
+# 
+# 用于根据Java的类代码，生成针对它的校验类
+# e.g.
+#   # 在配置的目录中查找类名对应的类：
+#   python creator.py CommonDDL.java
+#   # 明确指定路径来读取对应的类：
+#   python creator.py ../ddl/CommonDDL.java
+#
+# @author junewong<wangzhu@ucweb.com>
+# @date 2016-06-22
+# --------------------------------------------------------------------------------
+
 import os
 import sys
 import glob
@@ -12,7 +25,13 @@ from server.server import Server
 CURRENT_PATH = os.path.dirname( os.path.realpath(__file__) )
 DATA_FILE = CURRENT_PATH + '/tmp/data.txt'
 
+# 查找文件
 def findFile( dirname, filename ):
+    if '/' in filename:
+        if not os.path.exists( filename ):
+            return None
+        return filename
+
     ext = ".java"
     filename = filename if filename.endswith( ext ) else ( filename + ext )
     os.chdir( dirname )
@@ -24,6 +43,7 @@ def findFile( dirname, filename ):
     return None
 
 
+# 读取文件内容
 def read_file( filename ):
     content = ''
     if not os.path.exists( filename ):
@@ -40,9 +60,8 @@ def read_file( filename ):
     return content
 
 
+# 保存文件内容
 def save_file( filename, data ):
-    if not os.path.exists( filename ):
-        return False
     f = None
     try:
         f = open( filename, 'w' )
@@ -67,9 +86,11 @@ def main(argv):
         data = read_file( codeFile )
         if save_file( DATA_FILE, data ):
             print "保存临时文件成功"
+            Server.run()
         else:
             print "保存临时文件失败！"
     else:
+        print "没有指定目标类，根据之前的记录启动服务器……"
         Server.run()
 
 

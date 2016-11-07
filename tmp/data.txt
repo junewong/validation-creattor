@@ -1,160 +1,64 @@
-package cn.jy.modules.dspplatform.ddl;
+package cn.jy.modules.gamedb.ddl;
 
-import cn.jy.common.util.SimpleEncryptUtil;
-
-import jws.dal.annotation.Column;
 import jws.dal.annotation.GeneratedValue;
 import jws.dal.annotation.GenerationType;
 import jws.dal.annotation.Id;
 import jws.dal.annotation.Table;
 import jws.dal.common.DbType;
 
-/**
- * Dsp平台的登录账号
- *
- * @author junewong<wangzhu@ucweb.com>
- * @date 2016-10-18
- */
-@Table(name = "TB_DSP_PLATFORM_ACCOUNT")
-public class DspPlatformAccount {
+@Table(name = "TB_DATABASE_GAME")
+public class DatabaseGame {
 
 	@Id()
+	@jws.dal.annotation.Column(name = "id", type = DbType.BigInt)
 	@GeneratedValue(generationType = GenerationType.Auto)
-	@Column(name = "id", type = DbType.Int)
-	private Integer id;
-
-	@Column(name = "site_id", type = DbType.Int)
-	private Integer siteId;
-
-	@Column(name = "account", type = DbType.Varchar)
-	private String account;
-
-	@Column(name = "passowrd", type = DbType.Varchar)
-	private String passowrd;
-
-	@Column(name = "session_id", type = DbType.Varchar)
-	private String sessionId;
-
-	@Column(name = "cookies", type = DbType.Varchar)
-	private String cookies;
-
-	@Column(name = "user_id", type = DbType.Varchar)
-	private String userId;
-
-	@Column(name = "params", type = DbType.Varchar)
-	private String params;
-
-	@Column(name = "headers", type = DbType.Varchar)
-	private String headers;
-
-	@Column(name = "create_time", type = DbType.DateTime)
+	private long id;
+	
+	@jws.dal.annotation.Column(name = "website_id", type = DbType.Varchar)
+	private String websiteId;
+	
+	@jws.dal.annotation.Column(name = "name", type = DbType.Varchar)
+	private String name;
+	
+	@jws.dal.annotation.Column(name = "url", type = DbType.Varchar)
+	private String url;
+	
+	@jws.dal.annotation.Column(name = "create_time", type = DbType.DateTime)
 	private Long createTime;
-
-	@Column(name = "modify_time", type = DbType.DateTime)
+	
+	@jws.dal.annotation.Column(name = "modify_time", type = DbType.DateTime)
 	private Long modifyTime;
 
-	/**
-	 * 返回解密后的真实密码
-	 *
-	 * @return
-	 */
-	public String decodeRealPassword() {
-		if ( null == passowrd ) {
-			return null;
-		}
-		return SimpleEncryptUtil.decode( this.getPassowrd() );
-	}
-
-
-	public Integer getId() {
+	public long getId() {
 		return id;
 	}
 
-	public void setId(Integer id) {
+	public void setId(long id) {
 		this.id = id;
 	}
 
-	public Integer getSiteId() {
-		return siteId;
+	public String getWebsiteId() {
+		return websiteId;
 	}
 
-	public void setSiteId(Integer siteId) {
-		this.siteId = siteId;
+	public void setWebsiteId(String websiteId) {
+		this.websiteId = websiteId;
 	}
 
-	public String getAccount() {
-		return account;
+	public String getName() {
+		return name;
 	}
 
-	public void setAccount(String account) {
-		this.account = account;
+	public void setName(String name) {
+		this.name = name;
 	}
 
-	public String getPassowrd() {
-		return passowrd;
+	public String getUrl() {
+		return url;
 	}
 
-	public void setPassowrd(String passowrd) {
-		this.passowrd = passowrd;
-	}
-
-	/**
-	 * @return the sessionId
-	 */
-	public String getSessionId() {
-		return sessionId;
-	}
-
-	/**
-	 * @param sessionId the sessionId to set
-	 */
-	public void setSessionId(String sessionId) {
-		this.sessionId = sessionId;
-	}
-
-	public String getCookies() {
-		return cookies;
-	}
-
-
-	public void setCookies(String cookies) {
-		this.cookies = cookies;
-	}
-
-	/**
-	 * @return the userId
-	 */
-	public String getUserId() {
-		return userId;
-	}
-
-	/**
-	 * @param userId the userId to set
-	 */
-	public void setUserId(String userId) {
-		this.userId = userId;
-	}
-
-	/**
-	 * @return the params
-	 */
-	public String getParams() {
-		return params;
-	}
-
-	/**
-	 * @param params the params to set
-	 */
-	public void setParams(String params) {
-		this.params = params;
-	}
-
-	public String getHeaders() {
-		return headers;
-	}
-
-	public void setHeaders(String headers) {
-		this.headers = headers;
+	public void setUrl(String url) {
+		this.url = url;
 	}
 
 	public Long getCreateTime() {
@@ -172,5 +76,5 @@ public class DspPlatformAccount {
 	public void setModifyTime(Long modifyTime) {
 		this.modifyTime = modifyTime;
 	}
-	
+
 }

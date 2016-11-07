@@ -44,7 +44,7 @@
 	<div class="row">
 		<div class="col-sm-12">
 			<div class="breadcrumb">
-				<h3 class="text-center">校验代码生成器（Beta） </h3>
+				<h3 class="text-center">校验代码生成器（Alpah） </h3>
 			</div>
 		</div>
 	</div>
@@ -82,13 +82,17 @@
 			<div class="col-xs-10" id="validationOptions">
 			</div>
 		</div>
-
-		<!-- 页脚 -->
-		<div class="row">
-			<div class="col-xs-10" id="footer">&nbsp;</div>
-		</div>
-		<!--// 页脚 -->
 	</div>
+
+	<!-- 页脚 -->
+	<div class="row">
+		<div class="col-xs-12 text-center text-muted" id="footer">&nbsp;
+			<div class="">
+				<p>Copyright by junewong&lt;wz98940@alibaba-inc.com&gt;</p>
+			</div>
+		</div>
+	</div>
+	<!--// 页脚 -->
 
 
 	<script id="paramsOptionTmpl" type="text/x-js-template" charset="utf-8">
@@ -141,7 +145,7 @@
 					<label name="regex" class="control-label checkbox-inline validation-item">
 						<input type="checkbox" name="enable" value="1">
 						正则校验：<input type="input" name="value" value="" disabled="disabled" placeholder="填写正则表达式"/>
-						<input type="input" name="message" value="参数{{:name}}校验失败" placeholder="错误提示" style="display:none;"/>
+						<input type="input" name="message" value="参数{{:name}}校验不合法" placeholder="错误提示" style="display:none;"/>
 						<a class="message-folder" href="javascript:void();">[?]</a>
 					</label>
 				</div>
@@ -172,7 +176,7 @@ public class {{:classInfo.className}}Validation {
 		ValidationResult result = null;
 
 		{{for paramInfos}}
-		result = validate{{:upperName}}( param.get{{:upperName}} );
+		result = validate{{:upperName}}( param.get{{:upperName}}() );
 		if ( ! result.isSuccess() ) {
 			return result;
 		}
@@ -185,26 +189,32 @@ public class {{:classInfo.className}}Validation {
 	public static ValidationResult validate{{:upperName}}( {{:javaType}} value ) {
 
 	{{if conds.canBeNull }}
+	{{if conds.canBeNull.enable }}
 		if ( null == value ) {
 			return new ValidationResult( true );
 		}
+	{{else}}
+		if ( null == value ) {
+			return new ValidationResult( false, "{{:conds.canBeNull.message}}" );
+		}
+	{{/if}}
 	{{/if}}
 
 	{{if isString }}
-		{{if conds.canBeEmpty.enable }}
+		{{if conds.canBeEmpty.enable == false }}
 		if ( "".equals( value ) ) {
 			return new ValidationResult( false, "{{:conds.canBeEmpty.message}}" );
 		}
 		{{/if}}
 	{{else isNumber }}
 		{{if conds.maxNumber.enable }}
-		if ( ! value >= {{:conds.maxNumber.value}} ) {
+		if ( value > {{:conds.maxNumber.value}} ) {
 			return new ValidationResult( false, "{{:conds.maxNumber.message}}" );
 		}
 		{{/if}}
 
 		{{if conds.minNumber.enable }}
-		if ( ! value <= {{:conds.minNumber.value}} ) {
+		if ( value < {{:conds.minNumber.value}} ) {
 			return new ValidationResult( false, "{{:conds.minNumber.message}}" );
 		}
 		{{/if}}
@@ -213,12 +223,12 @@ public class {{:classInfo.className}}Validation {
 	{{if conds.regex.enable }}
 		try {
 			Pattern p = Pattern.compile( "{{:conds.regex.value}}" );
-			Matcher matcher = p.matcher( str );
+			Matcher matcher = p.matcher( value );
 			if ( ! matcher.matches() ) {
 				return new ValidationResult( false, "{{:conds.regex.message}}" );
 			}
 		} catch ( Exception e ) {
-			{{{!-- String errorMessage = String.format( "[{{classInfo.className}}] 校验参数{{:name}}时出现异常，value：%s，异常信息：%s", value, e.getMessage() ); --}}
+			{{!-- String errorMessage = String.format( "[{{classInfo.className}}] 校验参数{{:name}}时出现异常，value：%s，异常信息：%s", value, e.getMessage() ); --}}
 			String errorMessage = String.format( "校验参数{{:name}}时出现异常，value：%s，异常信息：%s", value, e.getMessage() );
 			return new ValidationResult( false, errorMessage );
 		}

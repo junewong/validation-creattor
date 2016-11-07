@@ -88,7 +88,7 @@ class Server():
         server_address = (HOST, port)
         httpd = server_class(server_address, handler_class)
         url = "http://" + HOST + ":" + str(PORT)
-        print 'Starting server, url:', url
+        print '启动代码生成器,请打开url:', url
         httpd.serve_forever()
 
 if __name__ == "__main__":
